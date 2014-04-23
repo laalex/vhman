@@ -27,8 +27,11 @@ You can obtain those information by typing `./vhman help` into your console.
 *Also, if you have different location for apache2.4 feel free to change those lines in the file (8-11):*
 
 email='roshkattu94@gmail.com'
+
 sitesEnable='/etc/apache2/sites-enabled/'
+
 sitesAvailable='/etc/apache2/sites-available/'
+
 userDir='/var/www/'
 
 _Feel free to use it however you want._ 
