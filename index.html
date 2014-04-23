@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Vhman by roshkattu</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Vhman</h1>
+        <p>VirtualHost manager for apache 2.4</p>
+
+        <p class="view"><a href="https://github.com/roshkattu/vhman">View the Project on GitHub <small>roshkattu/vhman</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/roshkattu/vhman/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/roshkattu/vhman/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/roshkattu/vhman">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="vhman" class="anchor" href="#vhman"><span class="octicon octicon-link"></span></a>vhman</h1>
+
+<p>Small shell program to manage the VHOSTS for <em>apache 2.4</em></p>
+
+<h1>
+<a name="run-this-as-root" class="anchor" href="#run-this-as-root"><span class="octicon octicon-link"></span></a>RUN THIS AS ROOT</h1>
+
+<p>To use this you first need to download vhman file into any directory and then update file permissions as follows:
+_chmod u+x vhman</p>
+
+<p>To use the file, you can call it like it follows:
+<code>./vhman create host_name config_name www_dir_name</code></p>
+
+<p>For example: 
+<code>./vhman create somewebsite.local somewebsite www_for_website</code>
+After executing the above command, a virtual host can be accessed via <code>http://somewebsite.local</code> and will have it's root into /var/www/www_for_website. Also the configuration file <code>somewebsite.conf</code> will be created within /sites-available/ and /sites-enabled/ folders from apache.</p>
+
+<p>Also you can remove a virtual host by usig 
+<code>./vhman delete host_name config_name www_dir_name</code>
+For example you can use:
+<code>./vhman delete somewebsite.local somewebsite www_for_website</code></p>
+
+<p>You can obtain those information by typing <code>./vhman help</code> into your console. </p>
+
+<p><em>Also, if you have different location for apache2.4 feel free to change those lines in the file (8-11):</em></p>
+
+<p>email='<a href="mailto:roshkattu94@gmail.com">roshkattu94@gmail.com</a>'</p>
+
+<p>sitesEnable='/etc/apache2/sites-enabled/'</p>
+
+<p>sitesAvailable='/etc/apache2/sites-available/'</p>
+
+<p>userDir='/var/www/'</p>
+
+<p><em>Feel free to use it however you want.</em> </p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/roshkattu">roshkattu</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
