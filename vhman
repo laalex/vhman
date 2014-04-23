@@ -1,0 +1,171 @@
+#!/bin/bash
+### Set default parameters
+action=$1
+domain=$2
+confname=$3
+dirname=$4
+owner=$(who am i | awk '{print $1}')
+email='roshkattu94@gmail.com'
+sitesEnable='/etc/apache2/sites-enabled/'
+sitesAvailable='/etc/apache2/sites-available/'
+userDir='/var/www/'
+
+if [ "$(whoami)" != 'root' ]; then
+        echo "You have no permission to run $0 as non-root user. Use sudo !!!"
+        exit 1;
+fi
+
+if [ "$action" == 'help' ];
+	then
+		echo "
+====================================================================
+Use this small program to create/delete virtual hosts for apache 2.4
+--------------------------------------------------------------------
+Use this like: ./vhman create [delete] hostname confname
+
+After executing create the following things will happen:
+- creatting a config file in $sitesAvailable
+- running a2ensite on the new file to register the virtual host
+--- this will add a conf in $sitesEnable
+- creating a directory within $userDir with the name of the VirtualHost
+- will add your server name to the /etc/hosts file to point to 127.0.0.1 
+- restarting apache to make your virtual host available
+"
+		exit 1;
+fi
+
+if [ "$action" != 'create' ] && [ "$action" != 'delete' ]
+	then
+		echo "Please set your action you want to take:
+1. create - this will create a VirtualHost
+2. delete - this will remove a VirtualHost
+3. help - will show some info."
+	    exit 1;
+fi
+
+
+
+while [ "$domain" == ""  ]
+do
+	echo -e "Please provide domain. e.g. dev,staging"
+	read  domain
+done
+
+while [ "$confname" == "" ]
+do
+	echo -e "Please provide configuration file name ( DO NOT INCLUDE .conf EXTENSION!! )"
+	read confname
+done
+
+while [ "$dirname" == "" ]
+do
+	echo -e "Please provide directory name to create in /var/www"
+	read dirname
+done
+
+rootdir=${dirname//./}
+
+if [ "$action" == 'create' ] 
+	then
+		### check if domain already exists
+		if [ -e $sitesAvailable$confname ]; then
+			echo -e 'This domain/configuration file already exists.\nPlease Try Another one'
+			exit;
+		fi
+
+		### check if directory exists or not
+		if [ -d $userDir$rootdir ]; then
+			echo -e 'Directory already exists !'
+			exit;
+		fi
+
+		### create the directory
+		mkdir $userDir$rootdir
+
+		### create virtual host rules file
+		if ! echo "<VirtualHost *:80>
+			ServerAdmin $email
+			ServerName $domain
+			DocumentRoot $userDir$rootdir
+		</VirtualHost>" > $sitesAvailable$confname'.conf'
+		then
+			echo -e 'There is an ERROR create $domain file'
+			exit;
+		else
+			echo -e '\nNew Virtual Host Created\n'
+		fi
+
+		### Add domain in /etc/hosts
+		if ! echo "
+127.0.0.1       $domain" >> /etc/hosts
+		then
+		    echo "ERROR: Not able write in /etc/hosts"
+		    exit;
+		else
+		    echo -e "Host added to /etc/hosts file \n"
+		fi
+
+		### enable website
+		a2ensite $confname
+		 
+		### restart Apache
+		service apache2 reload
+		 
+		### give permission to root dir
+		chmod 755 $userDir$rootdir
+
+		### write test file in the new domain dir
+		if ! echo "<h1>Working!</h1>" > $userDir$rootdir/index.html
+		then
+		    echo "ERROR: Not able to write in file "$userDir"/"$rootdir"/index.html. Please check permissions."
+		    exit;
+		else
+		    echo "Added content to "$userDir$rootdir"/phpinfo.php."
+		fi
+
+		if [ "$owner" == ""  ]; then
+			chown -R $(whoami):$(whoami) $userDir$rootdir
+		else
+			chown -R $owner:$owner $userDir$rootdir
+		fi
+
+		### show the finished message
+		echo -e "Complete!
+		You now have a new Virtual Host
+		Your new host is: http://"$domain"
+		And its located at "$userDir$rootdir
+		exit;
+	else
+		### check whether domain already exists
+		if ! [ -e $sitesAvailable$confname'.conf' ]; then
+			echo -e 'This domain dont exists.\nPlease Try Another one'
+			exit;
+		fi
+
+		### check if directory exists or not
+		if ! [ -d $userDir$rootdir ]; then
+			echo -e 'Directory not exists !'
+			exit;
+		fi
+
+		### Delete the directory
+		rm -rf $userDir$rootdir
+
+		### Delete virtual host rules file
+		rm $sitesAvailable$confname'.conf'
+
+		### Delete domain in /etc/hosts
+		newhost=${domain//./\\.}
+		sed -i "/$newhost/d" /etc/hosts
+
+		### Delete enabled domain
+		rm $sitesEnable$confname'.conf'
+		 
+		### restart Apache
+		service apache2 reload
+
+		### show the finished message
+		echo -e "Complete!
+		You just removed Virtual Host "$domain
+		exit 0;
+fi
